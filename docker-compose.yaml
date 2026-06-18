@@ -1,0 +1,18 @@
+services:
+  backend: 
+    build:
+      context: ./backend
+    container_name: backend_app
+    env_file:
+      - .env
+    expose:
+      - "${BACK_EXPOSE}"
+  nginx:
+    build: 
+      context: ./nginx
+    container_name: nginx_app
+    ports:
+      - "${NGINX_HOST_PORT}:${NGINX_CONT_PORT}"
+    depends_on:
+      - backend
+    

@@ -4,7 +4,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/":
-            text = "Hello from Effective Mobile!"
+            text = "Hello from Effective Mobile!\n"
 
             self.send_response(200)
             self.send_header("Content-Type", "text/plain; charset=utf-8")

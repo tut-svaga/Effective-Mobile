@@ -64,13 +64,16 @@ proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 ```text
 Effective-Mobile/
 ├── backend/
+│   ├── main.py
 │   ├── Dockerfile
-│   └── main.py
+│   └── .dockerignore
 ├── nginx/
 │   ├── Dockerfile
-│   └── nginx.conf
+│   ├── nginx.conf
+│   └── .dockerignore
 ├── .env.example
 ├── docker-compose.yml
+├── .gitignore
 └── README.md
 ```
 

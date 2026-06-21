@@ -7,6 +7,12 @@ services:
       - .env
     expose:
       - "${BACK_EXPOSE}"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080')"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
   nginx:
     build: 
       context: ./nginx
@@ -14,5 +20,7 @@ services:
     ports:
       - "${NGINX_HOST_PORT}:${NGINX_CONT_PORT}"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
     

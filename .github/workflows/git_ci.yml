@@ -28,7 +28,7 @@ jobs:
       - name: Check response
         run: |
           sleep 5
-          curl -f http://localhost:8080
+          curl -f http://localhost:8080 | grep "Hello from Effective Mobile!"
 
       - name: Stop containers
         if: always()

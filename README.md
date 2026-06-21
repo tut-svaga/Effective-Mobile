@@ -1,123 +1,86 @@
-# Effective-Mobile project
+# Effective Mobile
 
-Проект создан для прохождения тестового задания в компанию **Effective Mobile** на позицию **DevOps Junior Engineer**.
+Простой HTTP-сервис, запущенный через Docker Compose.
 
-## Описание проекта
-
-Проект представляет собой простой веб-сервис, который принимает HTTP-запросы и возвращает текстовый ответ пользователю.
-
-Сервис запускается через **Docker Compose**.
-
-При обращении к главной странице сервис выводит сообщение:
+При обращении к главной странице сервис возвращает:
 
 ```text
 Hello from Effective Mobile!
 ```
 
-## Используемый стек
+## Стек
 
-| Компонент      | Описание                                                            |
-| -------------- | ------------------------------------------------------------------- |
-| Backend        | Написан на Python версии 3.13                                       |
-| Python library | Используется стандартная библиотека `http.server`                   |
-| Nginx          | Версия 1.30.2, используется как reverse proxy                       |
-| Docker         | Контейнеризация backend и nginx                                     |
-| Docker Compose | Совместный запуск контейнеров и настройка взаимодействия между ними |
+- Python 3.13
+- Nginx 1.30.2
+- Docker
+- Docker Compose
 
-## Backend
+## Как работает
 
-Backend доступен только внутри Docker-сети на порту, указанном в `.env` файле.
+Запрос от пользователя сначала попадает в Nginx.
 
-В файле `main.py` используется порт:
+Nginx проксирует запрос во внутренний backend-сервис:
 
 ```text
-8080
+Client -> Nginx -> Backend
 ```
 
-Если нужно использовать другой порт, его необходимо изменить:
-
-1. в файле `main.py`;
-2. в файле `.env`.
-
-## Nginx
-
-Nginx доступен внешне на порту, указанном в `.env` файле.
-
-Внутри Docker-сети используется порт, который также указан в `.env`.
-
-По умолчанию Nginx слушает `80` порт и проксирует запросы на backend:
-
-```text
-http://backend:8080
-```
-
-Для передачи информации о клиентском запросе используются директивы:
-
-```nginx
-proxy_set_header Host $host;
-proxy_set_header X-Real-IP $remote_addr;
-proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-```
+Backend доступен только внутри Docker-сети.  
+Наружу открыт только Nginx.
 
 ## Структура проекта
 
 ```text
-Effective-Mobile/
+.
 ├── backend/
-│   ├── main.py
 │   ├── Dockerfile
+│   ├── main.py
 │   └── .dockerignore
 ├── nginx/
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   └── .dockerignore
+├── docker-compose.yaml
 ├── .env.example
-├── docker-compose.yml
 ├── .gitignore
 └── README.md
 ```
 
-## Как скачать репозиторий
+## Архитектура
 
-Склонировать репозиторий:
-
-```bash
-git clone https://github.com/tut-svaga/Effective-Mobile
+```
+Client -> Nginx -> Backend
 ```
 
-Перейти в папку проекта:
+## Переменные окружения
 
-```bash
-cd Effective-Mobile
+Для настройки портов используется файл `.env`.
+
+В репозитории хранится только пример файла:
+
+```env
+BACK_EXPOSE=8080
+NGINX_HOST_PORT=80
+NGINX_CONT_PORT=80
 ```
 
-## Как настроить `.env`
+Файл `.env` не добавляется в репозиторий, так как может содержать локальные настройки или секретные данные.
 
-Скопировать файл `.env.example` и создать на его основе `.env`:
+## Запуск
+
+Скопировать пример переменных окружения:
 
 ```bash
 cp .env.example .env
 ```
 
-После этого можно настроить значения портов в `.env` файле.
-
-## Как запустить проект
-
-Запуск с пересборкой контейнеров:
+Запустить проект:
 
 ```bash
 docker compose up --build
 ```
 
-Запуск в фоне:
-
-```bash
-docker compose up --build -d
-```
-
-## Проверка работы
-
-Выполнить запрос:
+Проверить работу:
 
 ```bash
 curl http://localhost
@@ -129,31 +92,23 @@ curl http://localhost
 Hello from Effective Mobile!
 ```
 
-## Назначение Docker Compose
+## Остановка
 
-Docker Compose используется для совместного запуска контейнеров backend и nginx.
-
-Также он нужен для:
-
-* настройки общей Docker-сети;
-* передачи переменных окружения;
-* определения порядка запуска сервисов;
-* удобного запуска всего проекта одной командой.
-
-## Назначение Nginx
-
-Nginx используется как reverse proxy.
-
-Он принимает внешние HTTP-запросы и перенаправляет их во внутренний backend-сервис.
-
-Это позволяет не открывать backend напрямую наружу, а обращаться к нему через Nginx.
-
-## Tut-svaga
-
-Тестовое задание выполнено для компании **Effective Mobile**.
-
-Репозиторий:
-
-```text
-https://github.com/tut-svaga/Effective-Mobile
+```bash
+docker compose down
 ```
+
+## CI
+
+В проект добавлена базовая проверка через GitHub Actions.
+
+При push в main и dev workflow собирает проект через Docker Compose, запускает контейнеры и проверяет HTTP-ответ от Nginx.
+
+## Что сделано
+
+- backend-сервис на Python;
+- Nginx настроен как reverse proxy;
+- сервисы запускаются через Docker Compose;
+- backend не открывается наружу напрямую;
+- настройки портов вынесены в `.env`;
+- `.env` исключён из репозитория.
